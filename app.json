@@ -1,4 +1,4 @@
-//This is a json file
+
 {
   "name": "OWASP NodeGoat",
   "description": "Educational tool to learn about OWASP Top 10 for node.js apps.",
