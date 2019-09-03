@@ -1,21 +1,29 @@
-# Node.js
-# Build a general Node.js project with npm.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+sudo: required
+language: node_js
+services:
+  - docker
+node_js:
+  - v12
 
-trigger:
-- master
+## Cache NPM folder and Cypress binary
+## to avoid downloading Cypress again and again
+cache:
+  directories:
+    - ~/.npm
+    - ~/.cache
 
-pool:
-  vmImage: 'ubuntu-latest'
+  override:
+    # use the new "ci" command for fastest installs on CI
+    - npm ci
+    - npm run cy:verify
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
+before_script:
+  ## we use the '&' ampersand which tells
+  ## travis to run this process in the background
+  ## else it would block execution and hang travis
+  - docker run -d -p 27017:27017 mongo:4.0
+  - docker ps -a
+  - NODE_ENV=test npm start -- --silent &
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+script:
+  - npm run test:ci
